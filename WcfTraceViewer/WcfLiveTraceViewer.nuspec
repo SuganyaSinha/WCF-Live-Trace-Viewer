@@ -1,0 +1,46 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>WcfLiveTraceViewer</id>
+    <version>1.0.0.0</version>
+    <title>WCF Live Trace Viewer</title>
+    <authors>Suganya Sinha</authors>
+    <owners>Suganya Sinha</owners>
+    <!--  
+      <requireLicenseAcceptance>true</requireLicenseAcceptance>
+    <licenseUrl>https://github.com/SuganyaSinha/WCF-Live-Trace-Viewer/blob/master/LICENSE.md</licenseUrl>
+    <projectUrl>https://github.com/SuganyaSinha/WCF-Live-Trace-Viewer</projectUrl>
+    
+       <file src="Deployment\content\web.config.install.xdt" target="tools/WcfLiveTraceViewer/ConfigTransformationFiles" />
+    <file src="Deployment\content\web.config.uninstall.xdt" target="tools/WcfLiveTraceViewer/ConfigTransformationFiles" />
+    -->
+  
+    <description>Provides live WCF trace </description>
+    <releaseNotes>This is the initial version of WCF Live Trace Viewer tool</releaseNotes>
+    <tags>wcf live trace</tags>
+  </metadata>
+  <files>
+     <file src="Deployment\content\web.config.install.xdt" target="content\" />
+    <file src="Deployment\content\web.config.uninstall.xdt" target="content\" />
+    
+    <file src="bin\Debug\WcfLiveTraceViewer.exe" target="tools/WcfLiveTraceViewer" />
+    <file src="bin\Debug\WcfLiveTraceViewer.exe.config" target="tools/WcfLiveTraceViewer" />
+    <file src="bin\Debug\Newtonsoft.Json.dll" target="tools/WcfLiveTraceViewer" />
+    <file src="bin\Debug\Microsoft.AspNet.SignalR.Client.dll" target="tools/WcfLiveTraceViewer" />
+    <file src="bin\Debug\Microsoft.Web.Administration.dll" target="tools/WcfLiveTraceViewer" />
+    <file src="bin\Debug\Microsoft.Web.XmlTransform.dll" target="tools/WcfLiveTraceViewer" />
+    
+    <file src="Deployment\AssemblyLocation/CustomTraceListener.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.AspNet.SignalR.Core.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.Owin.Diagnostics.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.Owin.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.Owin.Host.HttpListener.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.Owin.Hosting.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Microsoft.Owin.Security.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Newtonsoft.Json.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />
+    <file src="Deployment\AssemblyLocation/Owin.dll" target="tools/WcfLiveTraceViewer/AssemblyLocation" />    
+  
+     <file src="Deployment\readme.txt" target="" />
+
+  </files>
+</package>

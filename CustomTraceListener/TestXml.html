@@ -1,0 +1,131 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <script src="jquery-1.10.2.min.js"></script>
+    <style>
+        pre {
+            font-family:Verdana
+        }
+        .nodeName {
+            color: #900;
+        }
+        .nodeValue {
+            font-weight: bold;
+        }
+        .attrName {
+            color: red;
+        }
+        .attrValue {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function format(value, style)
+        {
+            return "<span class=\"" + style + "\">" + value + "</span>";
+        }
+
+        function formatNodeName(value)
+        {
+            return format(value, "nodeName");
+        }
+
+        function formatNodeValue(value)
+        {
+            return format(value, "nodeValue");
+        }
+
+        function formatAttrName(value)
+        {
+            return format(value, "attrName");
+        }
+
+        function formatAttrValue(value)
+        {
+            return "&quot;" + format(value, "attrValue") + "&quot;";
+        }
+
+        function getAttributeHtml(attributes)
+        {
+            if (attributes == null)
+                return "";
+
+            var html = "";
+            $(attributes).each(function(i,e)
+            {
+                var attrName = $(this)[0].nodeName;
+                var attrValue = $(this)[0].nodeValue;
+                //if (!attrName.match(/xmlns|:/)) {
+                //    html += "&nbsp;" + formatAttrName(attrName) + "=" + formatAttrValue(attrValue);
+                //}
+                html += "&nbsp;" + formatAttrName(attrName) + "=" + formatAttrValue(attrValue);
+            });
+            return html;
+        }
+
+        function getSpaces(level)
+        {
+            var spaces = "";
+            for (i = 0; i < level; i++)
+            {
+                spaces += " ";
+            }
+            return spaces;
+        }
+        function IndentXml(node, container, level)
+        {
+            var thisNode = $(node);
+            var attrs = thisNode[0].attributes;
+            $(container).append("&lt;" + formatNodeName(thisNode[0].nodeName) + getAttributeHtml(attrs) + "&gt;");
+            var children = thisNode.children();
+            if (children.length > 0) {
+                children.each(function (i, e) {
+                    $(container).append("<br/>");
+                    var childContainer = $(container).append(getSpaces(level * 2) + "<span></span>");
+                    //childContainer.css("margin-left", level * 5 + "px");
+                    IndentXml($(this), childContainer, level+1);
+                });
+                $(container).append("<br/>" + getSpaces((level-1) * 2));
+                
+            }
+            else
+            {
+                //container.append("<p>" + thisNode.text() + "</p>");
+                container.append(formatNodeValue(thisNode.text()));
+            }
+            $(container).append("&lt;/" + formatNodeName(thisNode[0].nodeName) + "&gt;");
+        }
+
+        function ParseXmlFromWCF(xml)
+        {
+            var xmlDoc = $($.parseXML(xml));
+            var action = xmlDoc.find("Action").text();
+            $("#msgbody").append("<p>" + action.substring(action.lastIndexOf("/") + 1) + "</p>");
+            IndentXml(xmlDoc.children()[0], $("#msgbody"), 0);
+        }
+
+        function Test(xmlDoc)
+        {
+            var timeAttibute = xmlDoc.find("HeaderAddedByListener").attributes[0];
+            var time = timeAttibute.nodeValue;
+        }
+    </script>
+
+    <script>
+        $(function () {
+            var xml = "<MessageLogTraceRecord><HttpRequest xmlns=\"http://schemas.microsoft.com/2004/06/ServiceModel/Management/MessageTrace\"><Method>POST</Method><QueryString></QueryString><WebHeaders><Connection>Keep-Alive</Connection><Content-Length>157</Content-Length><Content-Type>text/xml; charset=utf-8</Content-Type><Accept-Encoding>gzip, deflate</Accept-Encoding><Expect>100-continue</Expect><Host>localhost</Host><SOAPAction>\"http://tempuri.org/IService1/GetData\"</SOAPAction></WebHeaders></HttpRequest><s:Envelope xmlns:s=\"http://schemas.xmlsoap.org/soap/envelope/\"><s:Header><To s:mustUnderstand=\"1\" xmlns=\"http://schemas.microsoft.com/ws/2005/05/addressing/none\">http://vikram-vaio/Service/Service1.svc</To><Action s:mustUnderstand=\"1\" xmlns=\"http://schemas.microsoft.com/ws/2005/05/addressing/none\">http://tempuri.org/IService1/GetData</Action></s:Header><s:Body><GetData xmlns=\"http://tempuri.org/\"><value>1</value></GetData></s:Body></s:Envelope></MessageLogTraceRecord>";
+            var xmlDoc = $($.parseXML(xml));
+            var action = xmlDoc.find("Action").text();
+            $("#msgbody").append("<p>" + action.substring(action.lastIndexOf("/") + 1) + "</p>");
+            IndentXml(xmlDoc.children()[0], $("#msgbody"), 0);
+        });
+        
+    </script>
+    <title></title>
+</head>
+<body>
+    <pre id="msgbody"></pre></body>
+</html>

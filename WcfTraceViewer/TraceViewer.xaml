@@ -1,0 +1,353 @@
+﻿<Window x:Class="WcfLiveTraceViewer.TraceViewer"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="WCF Live Trace Viewer" Height="350" Width="525"  Loaded="Window_Loaded">
+
+    <Grid ShowGridLines="False" Grid.Column="0" Grid.Row="0" >
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="512*"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="10"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="30"></RowDefinition>
+            <RowDefinition Height="*"></RowDefinition>
+        </Grid.RowDefinitions>
+        <StackPanel Grid.Row="0" Grid.Column="0" >
+            <ProgressBar Minimum="0" Maximum="100" Name="signalRConnectionProgressBar" IsIndeterminate="True" Height="4" Visibility="Hidden"></ProgressBar>
+        </StackPanel>
+        <WrapPanel Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"  >
+            <Button Name="Configure" Margin="5,5,5,5" Click="Configure_Click" ToolTip="Select an application to trace">Select Application..</Button>
+            <Button Name="Action" Margin="0,5,5,5" Click="Action_Click" ToolTip="Start / Stop the trace">Start</Button>
+            <Button Name="Delete" Margin="0,5,5,5" Click="Delete_Click" ToolTip="Delete the selected messages">Delete</Button>
+            <Button Name="Clear" Margin="0,5,5,5" Click="Clear_Click" ToolTip="Clear all the messages">Clear</Button>
+            <Button Name="Save" Margin="0,5,5,5" Click="Save_Click" ToolTip="Save the messages to a file">Save</Button>
+            <Button Name="Open" Margin="0,5,5,5" Click="Open_Click" ToolTip="Open the saved log file">Open</Button>
+            <TextBox  x:Name="txtFind"  Margin="0,5,5,5"  Width="150" PreviewMouseDown="txtFind_PreviewMouseDown"  >Type to search..</TextBox>
+            <Button x:Name="Find" Margin="0,5,5,5" Click="Find_Click" IsDefault="True">Find</Button>
+        </WrapPanel>
+        <StackPanel Grid.Row="2" Grid.Column="0" Margin="5,5,0.463,5">
+            <TextBlock Name="msgTxtBlock" FontStyle="Italic"  Foreground="red" >hello suganya</TextBlock>
+        </StackPanel>
+        <TabControl Grid.Row="3" Grid.Column="0" Name="TabControl" Grid.ColumnSpan="2">
+            <TabItem Header="Message">
+                <Grid ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="85.48"></ColumnDefinition>
+                        <ColumnDefinition Width="464.52"/>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <ListView Grid.Column="0" Grid.Row="0"  Name="MessageDataView" ItemsSource="{Binding}" SelectionChanged="MessageDataView_SelectionChanged" Grid.ColumnSpan="2" >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="Yellow" Width="5"></Border>
+                            </DataTemplate>
+
+                        </ListView.ItemTemplate>
+                        <ListView.View>
+                            <GridView >
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Id "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TextBlockId" Text="{Binding Path=Id}" ></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TextBlockId" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TextBlockId" Property="Background" Value="red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Action "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtBlockAction" Text="{Binding Path=Action}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtBlockAction" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtBlockAction" Property="Background" Value="red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Request Time "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtRequestTime" Text="{Binding Path=RequestTime}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtRequestTime" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtRequestTime" Property="Background" Value="red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+ 
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Response Time "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtResponseTime" Text="{Binding Path=ResponseTime}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtResponseTime" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtResponseTime" Property="Background" Value="red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Duration(ms) "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock  Name="TxtDuration" Text="{Binding Path=Duration}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtDuration" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtDuration" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Sent To "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtSentTo" Text="{Binding Path=SentTo}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtSentTo" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtSentTo" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                        
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Source "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtSource" Text="{Binding Path=Source}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtSource" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtSource" Property="Background" Value="red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Process Name "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtProcessName" Text="{Binding Path=ProcessName}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtProcessName" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtProcessName" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Grid Grid.Column="2" Grid.Row="0" ShowGridLines="False" >
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="42*"></RowDefinition>
+                            <RowDefinition Height="auto"></RowDefinition>
+                            <RowDefinition Height="42*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <TextBlock Grid.Row="0" Height="22" Background="#EDEDED">Request</TextBlock>
+                        <TabControl Grid.Row="1">
+                            <TabItem Header="Header">
+                                <WebBrowser  x:Name="RequestHeaderXml" Grid.RowSpan="2" ></WebBrowser>
+                            </TabItem>
+                            <TabItem Header="Body"  IsSelected="True">
+                                <WebBrowser  Name="RequestEnvelopeXml"></WebBrowser>
+                            </TabItem>
+                            <TabItem Header="Raw">
+                                <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                                    <TextBox Name="RequestRawXml"></TextBox>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
+                        <TextBlock Grid.Row="2" Height="22" Background="#EDEDED">Response</TextBlock>
+                        <TabControl Grid.Row="3">
+                            <TabItem Header="Header">
+                                <WebBrowser  Name="ResponseHeaderXml"></WebBrowser>
+                            </TabItem>
+                            <TabItem Header="Body" IsSelected="True">
+                                <WebBrowser  Name="ResponseEnvelopeXml"></WebBrowser>
+                            </TabItem>
+                            <TabItem Header="Raw">
+                                <ScrollViewer HorizontalScrollBarVisibility="Visible" VerticalScrollBarVisibility="Visible">
+                                    <TextBox Name="ResponseRawXml"></TextBox>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
+
+
+                    </Grid>
+
+                </Grid>
+            </TabItem>
+            <TabItem Header="Trace">
+                <Grid ShowGridLines="False">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="550"></ColumnDefinition>
+                        <ColumnDefinition Width="*"></ColumnDefinition>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"></RowDefinition>
+                    </Grid.RowDefinitions>
+                    <ListView Grid.Column="0" Grid.Row="0"  Name="TraceDataView" ItemsSource="{Binding}" SelectionChanged="TraceDataView_SelectionChanged" >
+                        <ListView.View>
+                            <GridView >
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Id "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock  Name="TxtTraceId" Text="{Binding Path=Id}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                            <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                <Setter TargetName="TxtTraceId" Property="Background" Value="Yellow "></Setter>
+                                            </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtTraceId" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Description "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock  Name="TxtDesc" Text="{Binding Path=Description}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtDesc" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtDesc" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                       
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text=" Process Name "></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Name="TxtTraceProcessName" Text="{Binding Path=ProcessName}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtTraceProcessName" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtTraceProcessName" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                                <GridViewColumn>
+                                    <GridViewColumnHeader>
+                                        <TextBlock  Text="ActivityId"></TextBlock>
+                                    </GridViewColumnHeader>
+                                    <GridViewColumn.CellTemplate>
+                                        <DataTemplate>
+                                            <TextBlock  Name="TxtTraceActivityId" Text="{Binding Path=ActivityId}"></TextBlock>
+                                            <DataTemplate.Triggers>
+                                                <DataTrigger Binding="{Binding Path=IsHightlighted}" Value="true">
+                                                    <Setter TargetName="TxtTraceActivityId" Property="Background" Value="Yellow "></Setter>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding Path=HasError}" Value="true">
+                                                    <Setter TargetName="TxtTraceActivityId" Property="Background" Value="Red "></Setter>
+                                                </DataTrigger>
+                                            </DataTemplate.Triggers>
+                                        </DataTemplate>
+                                    </GridViewColumn.CellTemplate>
+                                </GridViewColumn>
+                            </GridView>
+                        </ListView.View>
+                    </ListView>
+                    <Grid Grid.Column="2" Grid.Row="0"  ShowGridLines="False">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition></ColumnDefinition>
+                        </Grid.ColumnDefinitions>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="*"></RowDefinition>
+                        </Grid.RowDefinitions>
+                        <ScrollViewer Grid.Row="0" VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible" >
+                            <WebBrowser x:Name="traceXml" Grid.Row="2"></WebBrowser>
+                        </ScrollViewer>
+                    </Grid>
+
+                </Grid>
+            </TabItem>
+        </TabControl>
+    </Grid>
+
+
+
+
+</Window>

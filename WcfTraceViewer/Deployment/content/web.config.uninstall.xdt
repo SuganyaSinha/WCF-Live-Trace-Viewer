@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <appSettings>
+    <add key="signalRPortNumber" xdt:Transform="Remove" xdt:Locator="Match(key)">
+    </add>
+  </appSettings>
+  <system.diagnostics >
+    <sources>
+      <source name="System.ServiceModel">
+        <listeners>
+          <add name="SignalRTraceListener" xdt:Transform="Remove" xdt:Locator="Match(name)" >
+            <filter type="" />
+          </add>
+        </listeners>
+      </source>
+      <source name="System.ServiceModel.MessageLogging">
+        <listeners>
+          <add name="SignalRTraceListener" xdt:Transform="Remove" xdt:Locator="Match(name)" >
+            <filter type="" />
+          </add>
+        </listeners>
+      </source>
+    </sources>
+    <sharedListeners>
+      <add name="SignalRTraceListener" xdt:Transform="Remove" xdt:Locator="Match(name)">
+      </add>
+    </sharedListeners>
+  </system.diagnostics>
+
+</configuration>

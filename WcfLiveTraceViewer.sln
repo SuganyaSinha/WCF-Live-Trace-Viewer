@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WcfLiveTraceViewer", "WcfTraceViewer\WcfLiveTraceViewer.csproj", "{277C4B78-608F-4BA0-9B3B-D750D5C9D8A9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomTraceListener", "CustomTraceListener\CustomTraceListener.csproj", "{2B37F8DD-7AC5-4CC2-9677-54AAF6E99DA7}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 3
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = https://suganyasinha.visualstudio.com/defaultcollection
+		SccProjectUniqueName0 = CustomTraceListener\\CustomTraceListener.csproj
+		SccProjectName0 = CustomTraceListener
+		SccLocalPath0 = CustomTraceListener
+		SccLocalPath1 = .
+		SccProjectUniqueName2 = WcfTraceViewer\\WcfLiveTraceViewer.csproj
+		SccProjectName2 = WcfTraceViewer
+		SccLocalPath2 = WcfTraceViewer
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{277C4B78-608F-4BA0-9B3B-D750D5C9D8A9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{277C4B78-608F-4BA0-9B3B-D750D5C9D8A9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{277C4B78-608F-4BA0-9B3B-D750D5C9D8A9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{277C4B78-608F-4BA0-9B3B-D750D5C9D8A9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2B37F8DD-7AC5-4CC2-9677-54AAF6E99DA7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2B37F8DD-7AC5-4CC2-9677-54AAF6E99DA7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2B37F8DD-7AC5-4CC2-9677-54AAF6E99DA7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2B37F8DD-7AC5-4CC2-9677-54AAF6E99DA7}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

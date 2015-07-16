@@ -1,0 +1,148 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <style>
+        td {
+            border:1px solid black;
+            margin:0px;
+        }
+    </style>
+    <script src="jquery-1.10.2.min.js"></script>
+    <script src="jquery.signalR-2.1.0.min.js"></script>
+    <script src="knockout-3.1.0.js" ></script>
+    <script src="XmlParser.js"></script>
+    <script>
+        function ParseXmlFromWCF(xml) {
+            // Get the xml
+            var xmlDoc = $($.parseXML(xml));
+            DisplayHeader(xmlDoc);
+        }
+        function DisplayHeader(xmlDoc)
+        {
+
+            // Get the time attibute in the header
+            var timeAttribute = xmlDoc.find("HeaderAddedByListener")[0].attributes[0];
+            var time;
+            if (timeAttribute != null) {
+                time = timeAttribute.nodeValue;
+                msgLog[msgId] = xmlDoc;
+                $("#msgHeader").append("<a href=\"javascript:DisplayBody(" + msgId + ");\">" + time + "</a>");
+            }
+
+            // Display the action node
+            var action = xmlDoc.find("Action").text();
+            $("#msgHeader").append(action.substring(action.lastIndexOf("/") + 1));
+
+            $("#msgHeader").append("<br>");
+
+            traceItems.push({ time: time, action: action.substring(action.lastIndexOf("/") + 1) });
+        }
+
+        function DisplayBody(msgId)
+        {
+            var xmlDoc = msgLog[msgId];
+
+            $("#msgbody").html('');
+            IndentXml(xmlDoc.children()[0], $("#msgbody"), 0);
+        }
+    </script>
+    <style>
+        pre {
+            font-family: Verdana;
+        }
+
+        .nodeName {
+            color: #900;
+        }
+
+        .nodeValue {
+            font-weight: bold;
+        }
+
+        .attrName {
+            color: red;
+        }
+
+        .attrValue {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+    <script>
+        function headerItem(time, action) {
+            return {
+                time: time,
+                action: action
+            };
+        }
+        
+
+
+        var msgId = 0;
+        var msgLog = [];
+        var connection = $.connection("http://vikram-vaio:9999/listener");
+        
+        connection.start(function () {
+            connection.received(function (data) {
+                //data = JSON.parse(data);
+                msgId = msgId + 1;
+                ParseXmlFromWCF(data);
+            });
+        });
+    </script>
+    <script id="headerTemplate" type="text/html">
+        <table>
+            <tbody >
+                <tr>
+                    <td data-bind="text: time"></td>
+                    <td data-bind="text: action"></td>
+                </tr>
+            </tbody>
+        </table>
+    </script>
+<title></title>
+</head>
+<body>
+
+    <table border="1" >
+     <tr>
+        <td valign="top">
+         <div id="left"><pre id="msgHeader"></pre></div>
+        </td>
+         <td valign="top">
+             <div data-bind="template: {name:'headerTemplate', foreach:headerItems}"></div>
+             <div id="right"><pre id="msgbody"></pre></div>
+         </td>
+     </tr>
+    </table>
+
+    
+    
+</body>
+</html>
+<script>
+    /*
+    var traceItems = ko.observableArray([
+                    { time: "Bungle", action: "Bear" }
+    ]);*/
+
+    var traceItems = ko.observableArray();
+
+        function myViewModel()
+        {
+            var self = this;
+
+            self.headerItems = traceItems;
+
+            //functions
+            self.addNewItem = function () {
+                self.headerItems.push({ time: "suganya", action: "girl" });
+            }
+        }
+
+        ko.applyBindings(new myViewModel());
+ </script>
+
+

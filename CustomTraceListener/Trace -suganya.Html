@@ -1,0 +1,120 @@
+﻿<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <style>
+    </style>
+    <script src="jquery-1.10.2.min.js"></script>
+    <script src="jquery.signalR-2.1.0.min.js"></script>
+    <script src="knockout-3.1.0.js" ></script>
+    <script src="XmlParser.js"></script>
+    <script>
+        function parseXmlFromWCFTrace(traceData) {
+            // Get the xml
+            var xmlDoc = $.parseXML(traceData);
+            return xmlDoc;
+        }
+        function getTime() {
+            var now = new Date();
+            return now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        }
+        function traceItem(traceData) {
+            var self = this;
+            var traceXml = parseXmlFromWCFTrace(traceData);
+            self.traceXml = traceXml;
+            self.createdTime = getTime();
+            var actionNode = $(traceXml).find("Action");
+            self.action = actionNode != null ? actionNode.text().substring(actionNode.text().lastIndexOf("/") + 1) : "";
+           // self.formattedXml = ko.observable();
+           // self.itemId = traceItemId;
+
+        }
+        function mainViewModel() {
+            var self = this;
+            self.traceLog = ko.observableArray();
+            self.addTraceItem = function (traceData) {
+                //self.traceLog[traceItemId] = new traceItem(traceData);
+                self.traceLog.push(new traceItem(traceData));
+            }
+            self.clearTraceLog = self.traceLog.removeAll();
+            self.getTraceItem = function (){
+                self.traceLog.traceXml;
+            };
+                //lf.traceLog[traceItemId];
+           /* self.selectedTraceItem = null;
+            self.formattedXml = null;
+            self.selectItem = function (item) {
+                self.selectedTraceItem = item;
+                if (item == null)
+                    return;
+                self.selectedTraceItem.formattedXml(IndentXml(self.selectedTraceItem.traceXml));
+            };*/
+
+        }
+
+        var traceItemId = 0;
+
+        $(function () {
+            var vm = new mainViewModel();
+
+            var connection = $.connection("http://vikram-vaio:9999/listener");
+
+            connection.start(function () {
+                connection.received(function (data) {
+                    traceItemId = traceItemId + 1;
+                    vm.addTraceItem(data);
+                    //var test = vm.getTraceItem(traceItemId);
+                });
+            });
+            ko.applyBindings(vm);
+        });
+    </script>
+    
+    <style>
+        pre {
+            font-family: Verdana;
+        }
+
+        .nodeName {
+            color: #900;
+        }
+
+        .nodeValue {
+            font-weight: bold;
+        }
+
+        .attrName {
+            color: red;
+        }
+
+        .attrValue {
+            color: red;
+            font-weight: bold;
+        }
+    </style>
+<title></title>
+</head>
+<body>
+    <div >
+        <table id="itemTemplate" cellspacing="0" border="1">
+            <thead>
+                <tr>
+                    <th width="70px">Time</th>
+                    <th width="200px">Action</th>
+                </tr>
+            </thead>
+            <tbody data-bind="foreach: traceLog">
+                <tr >
+                    <td data-bind="text: createdTime"></td>
+                    <td data-bind="text: action"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    <div><div data-bind="html: traceXml"></div>
+    </div>
+</body>
+</html>
+
+

@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<configuration xmlns:xdt="http://schemas.microsoft.com/XML-Document-Transform">
+  <system.serviceModel xdt:Transform="InsertIfMissing" >
+    <diagnostics xdt:Transform="InsertIfMissing" >
+      <messageLogging logEntireMessage="true" logMalformedMessages="true" logMessagesAtServiceLevel="true" />
+    </diagnostics>
+  </system.serviceModel>
+  <appSettings xdt:Transform="InsertIfMissing">
+    <add key="signalRPortNumber" xdt:Transform="InsertIfMissing" xdt:Locator="Match(key)" value=""/>
+  </appSettings>
+  <system.diagnostics xdt:Transform="InsertIfMissing" >
+    <sources xdt:Transform="InsertIfMissing">
+      <source propagateActivity="true" name="System.ServiceModel" switchValue="Verbose,ActivityTracing" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)">
+        <listeners>
+          <add name="SignalRTraceListener" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)" >
+            <filter type="" />
+          </add>
+        </listeners>
+      </source>
+      <source name="System.ServiceModel.MessageLogging" switchValue="Warning,ActivityTracing" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)">
+        <listeners>
+          <add name="SignalRTraceListener" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)">
+            <filter type="" />
+          </add>
+        </listeners>
+      </source>
+    </sources>
+    <sharedListeners xdt:Transform="InsertIfMissing">
+      <add type="CustomTraceListener.SignalRTraceListener, CustomTraceListener, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null"
+        name="SignalRTraceListener" traceOutputOptions="LogicalOperationStack, DateTime" xdt:Transform="InsertIfMissing" xdt:Locator="Match(name)">
+        <filter type="" />
+      </add>
+    </sharedListeners>
+  </system.diagnostics>
+  <runtime xdt:Transform="InsertIfMissing" >
+    <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1" xdt:Transform="InsertIfMissing">
+      <dependentAssembly xdt:Transform="InsertIfMissing"
+                         xdt:Locator="Condition(./_defaultNamespace:assemblyIdentity/@name='Microsoft.Owin')" >
+        <assemblyIdentity name="Microsoft.Owin"
+          publicKeyToken="31bf3856ad364e35"
+          culture="neutral"  />
+        <bindingRedirect oldVersion="2.0.1.0" newVersion="2.0.2.0" />
+      </dependentAssembly>
+      <dependentAssembly xdt:Transform="InsertIfMissing" xdt:Locator="Condition(./_defaultNamespace:assemblyIdentity/@name='Microsoft.Owin.Security')">
+        <assemblyIdentity name="Microsoft.Owin.Security"
+          publicKeyToken="31bf3856ad364e35"
+          culture="neutral" />
+        <bindingRedirect oldVersion="2.0.1.0" newVersion="2.0.2.0" />
+      </dependentAssembly>
+    </assemblyBinding>
+
+  </runtime>
+   
+</configuration>
