@@ -64,7 +64,7 @@
                 <TextBlock Margin="5">(or) Select a configuration file to configure WCF Tracing</TextBlock>
                 <Button Margin="5" x:Name="btnBrowse" Click="btnBrowse_Click">Browse..</Button>
             </StackPanel>
-            <TextBlock Margin="5,5,5,5" Grid.Row="1" x:Name="txtMessage" Grid.ColumnSpan="3" FontStyle="Italic"  Foreground="red" VerticalAlignment="Center" ></TextBlock>
+            <TextBlock Margin="5,5,5,5" Grid.Row="1" x:Name="txtMessage" Grid.ColumnSpan="3" VerticalAlignment="Center" ></TextBlock>
             <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Height="5" Grid.ColumnSpan="3"></GridSplitter>
             <StackPanel Orientation="Horizontal" Grid.Row="3" Grid.ColumnSpan="3" >
                 <Button Margin="5,5,5,5" x:Name="btnEnableTracing"  Click="btnEnableTracing_Click">Enable Tracing</Button>

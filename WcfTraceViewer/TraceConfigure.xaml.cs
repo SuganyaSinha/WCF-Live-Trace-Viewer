@@ -39,11 +39,11 @@ namespace WcfLiveTraceViewer
             }
             catch (UnauthorizedAccessException unAuthorizedEx)
             {
-                txtMessage.Text = "Unauthorized to enumerate the websites. Please run the WCF Live Trace Viewer as administrator or select a configuration file";
+                DisplayMessage("Unauthorized to enumerate the websites. Please run the WCF Live Trace Viewer as administrator or select a configuration file",true);
             }
             catch(Exception ex)
             {
-                txtMessage.Text = ex.Message;
+                DisplayMessage(ex.Message,true);
             }
 
             view.ItemsSource = wcfConfigPaths;
@@ -67,17 +67,17 @@ namespace WcfLiveTraceViewer
                         browseMode = false;
                         if (string.Equals(fileName, "web.config", StringComparison.OrdinalIgnoreCase))
                         {
-                            txtMessage.Text = "Tracing has been enabled for " + selectedConfigFile + ". Please access the website associated with this configuration file for the configuration changes to get applied";
+                            DisplayMessage("Tracing has been enabled for " + selectedConfigFile + ". Please access the website associated with this configuration file for the configuration changes to get applied",false);
                         }
                         else
                         {
-                            txtMessage.Text = "Tracing has been enabled for " + selectedConfigFile + ".Please restart the process associated with this configuration file for the configuration changes to get applied";
+                            DisplayMessage("Tracing has been enabled for " + selectedConfigFile + ".Please restart the process associated with this configuration file for the configuration changes to get applied",false);
                         }
                     }
                 }
                 else
                 {
-                    txtMessage.Text = "Please select a configuration file";
+                    DisplayMessage("Please select a configuration file",true);
                 }
 
             }
@@ -89,7 +89,7 @@ namespace WcfLiveTraceViewer
 
                 if (items.Count == 0)
                 {
-                    txtMessage.Text = "Please select a configuration file or process";
+                    DisplayMessage("Please select a configuration file or process",true);
                 }
                 else
                 {
@@ -109,11 +109,11 @@ namespace WcfLiveTraceViewer
                         selectedConfigFile = path + items[0].ConfigName;
                         if (string.Equals(items[0].ConfigName, "web.config", StringComparison.OrdinalIgnoreCase))
                         {
-                            txtMessage.Text = "Tracing has been enabled for " + selectedConfigFile + ". Please access the selected website for the configuration changes to get applied";
+                            DisplayMessage("Tracing has been enabled for " + selectedConfigFile + ". Please access the selected website for the configuration changes to get applied",false);
                         }
                         else
                         {
-                            txtMessage.Text = "Tracing has been enabled for " + selectedConfigFile + ". Please restart the selected process for the configuration changes to get applied";
+                            DisplayMessage("Tracing has been enabled for " + selectedConfigFile + ". Please restart the selected process for the configuration changes to get applied",false);
                         }
                     }
 
@@ -147,7 +147,7 @@ namespace WcfLiveTraceViewer
             catch(Exception ex)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    txtMessage.Text = "Error while enabling tracing: " + ex.Message;
+                    DisplayMessage("Error while enabling tracing: " + ex.Message,true);
                 return false;
             }
             
@@ -161,7 +161,7 @@ namespace WcfLiveTraceViewer
             if (dlg.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 selectedConfigFile = dlg.FileName;
-                txtMessage.Text = "The selected configuration file is : " + selectedConfigFile;
+                DisplayMessage("The selected configuration file is : " + selectedConfigFile,false);
                 browseMode = true;
             }
         }
@@ -248,12 +248,12 @@ namespace WcfLiveTraceViewer
                     if (DisableTracing(path, fileName))
                     {
                         browseMode = false;
-                        txtMessage.Text = "Tracing has been disabled for " + selectedConfigFile;
+                        DisplayMessage("Tracing has been disabled for " + selectedConfigFile,false);
                     }
                 }
                 else
                 {
-                    txtMessage.Text = "Please select a configuration file";
+                    DisplayMessage("Please select a configuration file",true);
                 }
 
             }
@@ -264,7 +264,7 @@ namespace WcfLiveTraceViewer
 
                 if (items.Count == 0)
                 {
-                    txtMessage.Text = "Please select a configuration file or process";
+                    DisplayMessage("Please select a configuration file or process",true);
                 }
                 else
                 {
@@ -282,7 +282,7 @@ namespace WcfLiveTraceViewer
                     if (DisableTracing(path, items[0].ConfigName))
                     {
                         selectedConfigFile = path + items[0].ConfigName;
-                        txtMessage.Text = "Tracing has been disabled for " + selectedConfigFile;
+                        DisplayMessage("Tracing has been disabled for " + selectedConfigFile,false);
                     }
                 }
             }
@@ -313,7 +313,7 @@ namespace WcfLiveTraceViewer
             catch(Exception ex)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    txtMessage.Text = "Error while disabling tracing: " + ex.Message;
+                    DisplayMessage("Error while disabling tracing: " + ex.Message,true);
                 return false;
             }
 
@@ -355,6 +355,18 @@ namespace WcfLiveTraceViewer
             txtMessage.Text = "";
         }
 
+        private void DisplayMessage(string msg,bool isError)
+        {
+            if (isError)
+            {
+                txtMessage.Foreground = Brushes.Red;
+            }
+            else
+            {
+                txtMessage.Foreground = Brushes.Black;
+            }
 
+            txtMessage.Text = msg;
+        }
     }
 }
