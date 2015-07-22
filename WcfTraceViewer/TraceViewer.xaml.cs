@@ -62,7 +62,7 @@ namespace WcfLiveTraceViewer
             {
                 App.Current.Dispatcher.Invoke(() => {
                     signalRConnectionProgressBar.Visibility = System.Windows.Visibility.Hidden;
-                    msgTxtBlock.Text = "Connection timed out...";
+                    DisplayMessage("Connection timed out...",true);
                     Action.Content = "Start";
                 });
                 
@@ -90,7 +90,7 @@ namespace WcfLiveTraceViewer
                 if (tracingEnabled == true)
                 {
                     signalRConnectionProgressBar.Visibility = System.Windows.Visibility.Visible;
-                    msgTxtBlock.Text = "Connecting ...";
+                    DisplayMessage("Connecting ...",false);
                     signalrConnectionTimer.Start();
                     connectionTimedOut = false;
 
@@ -104,7 +104,7 @@ namespace WcfLiveTraceViewer
                         catch(Exception ex)
                         {
                             if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                                msgTxtBlock.Text = "Error while starting the listener: " + ex.Message;
+                                DisplayMessage("Error while starting the listener: " + ex.Message,true);
                             return;
                         }
                         
@@ -146,7 +146,7 @@ namespace WcfLiveTraceViewer
                 else
                 {
                     // tracing is not enabled. Prompt the user to configure tracing
-                    msgTxtBlock.Text = "Please select a WCF application to trace and then click Start";
+                    DisplayMessage("Please select a WCF application to trace and then click Start",true);
                 }
             }
             else
@@ -164,7 +164,7 @@ namespace WcfLiveTraceViewer
                     if (signalRConnectionProgressBar.Visibility == Visibility.Visible)
                         signalRConnectionProgressBar.Visibility = Visibility.Hidden;
 
-                    msgTxtBlock.Text = "Listening for messages...";
+                    DisplayMessage("Listening for messages...",false);
                     Action.Content = "Stop";
                 });
 
@@ -218,28 +218,37 @@ namespace WcfLiveTraceViewer
         {
             try
             {
-                XNamespace ns1 = "http://schemas.microsoft.com/2004/06/ServiceModel/Management/MessageTrace";
-                XNamespace ns2 = "http://schemas.microsoft.com/2004/09/ServiceModel/Diagnostics";
-                XNamespace ns3 = "http://schemas.microsoft.com/ws/2005/05/addressing/none";
-                
-                
+                // Get the node name and their corresponding namespace values
+                var namespaceMapping = traceXml.DescendantsAndSelf().SelectMany(s => s.Attributes()).
+                    Where(a => a.IsNamespaceDeclaration).
+                    GroupBy(b => b.Parent.Name.LocalName).
+                    ToDictionary(g => g.Key, g => g.First().Value);
+
                 var ListenerActivityId = traceXml.Attribute("ActivityId");
                 var processName = traceXml.Attribute("ProcessId");
-                
-                var requestXml = traceXml.Element(ns1 + "MessageLogTraceRecord");
+
+                if (!namespaceMapping.ContainsKey("MessageLogTraceRecord"))
+                    return;
+
+                XNamespace nsMessageLogTraceRecord = namespaceMapping["MessageLogTraceRecord"];
+                var requestXml = traceXml.Element(nsMessageLogTraceRecord + "MessageLogTraceRecord");
                 string inputXml = requestXml.ToString();
 
                 DateTime time =(DateTime) requestXml.Attribute("Time");
                 string source = requestXml.Attribute("Source").Value;
-                var actionNode = requestXml.Descendants(ns3 + "Action");
+
+
                 string action = "";
-
-
-                if(actionNode.Count() > 0)
+                if (namespaceMapping.ContainsKey("Action"))
                 {
-                    action = actionNode.First().Value;
-                    int index = action.LastIndexOf("/") + 1;
-                    action = action.Substring(index, (action.Length) - index );
+                    XNamespace nsAction = namespaceMapping["Action"];
+                    var actionNode = requestXml.Descendants(nsAction + "Action");
+                    if (actionNode.Count() > 0)
+                    {
+                        action = actionNode.First().Value;
+                        int index = action.LastIndexOf("/") + 1;
+                        action = action.Substring(index, (action.Length) - index);
+                    }
                 }
     
                 bool isRequest = true;
@@ -264,15 +273,8 @@ namespace WcfLiveTraceViewer
 
                 if (isRequest)
                 {
-                    var toNode = requestXml.Descendants(ns3 + "To");
-                    string To = "";
-                    {
-                        if (toNode.Count() > 0)
-                            To = toNode.First().Value;
-                    }
-
                     messageId += 1;
-                    Item traceItem = new Item("<?xml version=\"1.0\"?>" + inputXml, id: messageId, activityId: ListenerActivityId.Value, requestTime: time.TimeOfDay, action: action, processName: processName.Value, sentTo: To,source: source, hasError: hasError);
+                    Item traceItem = new Item("<?xml version=\"1.0\"?>" + inputXml, id: messageId, activityId: ListenerActivityId.Value, requestTime: time.TimeOfDay, action: action, processName: processName.Value, source: source, hasError: hasError);
                     App.Current.Dispatcher.Invoke(() => { messageData.Add(traceItem); });
                 }
                 else
@@ -291,7 +293,7 @@ namespace WcfLiveTraceViewer
             catch(Exception e)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    msgTxtBlock.Text = "Error while adding the message items: " + e.Message;
+                    DisplayMessage("Error while adding the message items: " + e.Message,true);
             }
         }
 
@@ -299,27 +301,38 @@ namespace WcfLiveTraceViewer
         {
             try
             {
+
+                // Get the node name and their corresponding namespace values
+                var namespaceMapping = traceXml.DescendantsAndSelf().SelectMany(s => s.Attributes()).
+                    Where(a => a.IsNamespaceDeclaration).
+                    GroupBy(b => b.Parent.Name.LocalName).
+                    ToDictionary(g => g.Key,g=>g.First().Value);
+
                 string inputXml = traceXml.FirstNode.ToString();
                 var ListenerActivityId = traceXml.Attribute("ActivityId");
                 var processName = traceXml.Attribute("ProcessId");
 
                 string description = "";
-                XNamespace ns1 = "http://schemas.microsoft.com/2004/10/E2ETraceEvent/TraceRecord";
-                XNamespace ns2 = "http://schemas.microsoft.com/2006/08/ServiceModel/DictionaryTraceRecord";
-
-                var actionNode = traceXml.Descendants(ns2 + "ActivityName");
-                if (actionNode.Count() > 0)
+                if (namespaceMapping.ContainsKey("TraceRecord"))
                 {
-                    description = actionNode.First().Value;
-                }
-                else
-                {
-                    var descNode = traceXml.Descendants(ns1 + "Description");
+                    XNamespace nsDescription = namespaceMapping["TraceRecord"];
+                    var descNode = traceXml.Descendants(nsDescription + "Description");
                     if (descNode.Count() > 0)
                         description = descNode.First().Value;
-
                 }
-                
+
+                // description will be over written if "ActivityName" node exists
+                if (namespaceMapping.ContainsKey("ExtendedData"))
+                {
+                    XNamespace nsActivityName = namespaceMapping["ExtendedData"];
+                    var actionNode = traceXml.Descendants(nsActivityName + "ActivityName");
+                    if (actionNode.Count() > 0)
+                    {
+                        description = actionNode.First().Value;
+                    }
+    
+                }
+
                 bool hasError = false;
 
                 if (inputXml.Contains("error") || inputXml.Contains("Exception") || inputXml.Contains("Fault"))
@@ -333,7 +346,7 @@ namespace WcfLiveTraceViewer
             catch (Exception e)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    msgTxtBlock.Text = "Error while adding trace items: " + e.Message;
+                    DisplayMessage("Error while adding trace items: " + e.Message,true);
             }
         }
 
@@ -354,7 +367,7 @@ namespace WcfLiveTraceViewer
             catch(Exception ex)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    msgTxtBlock.Text = "Error while selecting the message item: " + ex.Message;
+                    DisplayMessage("Error while selecting the message item: " + ex.Message,true);
             }
         }
 
@@ -364,19 +377,27 @@ namespace WcfLiveTraceViewer
             {
                 XElement xml = XElement.Parse(inputData);
                // RequestHeaderXml.NavigateToString("<?xml version=\"1.0\"?>" + xml.FirstNode.ToString());
+                var namespaceMapping = xml.DescendantsAndSelf().SelectMany(s => s.Attributes()).
+                                        Where(a => a.IsNamespaceDeclaration).
+                                        GroupBy(b => b.Parent.Name.LocalName).
+                                        ToDictionary(g => g.Key, g => g.First().Value);
 
-                XNamespace ns2 = "http://schemas.xmlsoap.org/soap/envelope/";
-                var headerNode = xml.Descendants(ns2 + "Header");
-                if (headerNode.Count() > 0)
+                if (namespaceMapping.ContainsKey("Envelope"))
                 {
-                    RequestHeaderXml.NavigateToString("<?xml version=\"1.0\"?>" + headerNode.FirstOrDefault().ToString());
+                    XNamespace nsEnvelope = namespaceMapping["Envelope"];
+                    var headerNode = xml.Descendants(nsEnvelope + "Header");
+                    if (headerNode.Count() > 0)
+                    {
+                        RequestHeaderXml.NavigateToString("<?xml version=\"1.0\"?>" + headerNode.FirstOrDefault().ToString());
+                    }
+
+                    var bodyNode = xml.Descendants(nsEnvelope + "Body");
+                    if (bodyNode.Count() > 0)
+                    {
+                        RequestEnvelopeXml.NavigateToString("<?xml version=\"1.0\"?>" + bodyNode.FirstOrDefault().ToString());
+                    }
                 }
 
-                var bodyNode = xml.Descendants(ns2 + "Body");
-                if (bodyNode.Count() > 0)
-                {
-                    RequestEnvelopeXml.NavigateToString("<?xml version=\"1.0\"?>" + bodyNode.FirstOrDefault().ToString());
-                }
 
                 RequestRawXml.Text = inputData;
             }
@@ -389,17 +410,26 @@ namespace WcfLiveTraceViewer
                 }
                     
                 XElement xml = XElement.Parse(inputData);
-                XNamespace ns2 = "http://schemas.xmlsoap.org/soap/envelope/";
-                var headerNode = xml.Descendants(ns2 + "Header");
-                if (headerNode.Count() > 0)
-                {
-                    ResponseHeaderXml.NavigateToString("<?xml version=\"1.0\"?>" + headerNode.FirstOrDefault().ToString());
-                }
 
-                var bodyNode = xml.Descendants(ns2 + "Body");
-                if (bodyNode.Count() > 0)
+                var namespaceMapping = xml.DescendantsAndSelf().SelectMany(s => s.Attributes()).
+                        Where(a => a.IsNamespaceDeclaration).
+                        GroupBy(b => b.Parent.Name.LocalName).
+                        ToDictionary(g => g.Key, g => g.First().Value);
+
+                if (namespaceMapping.ContainsKey("Envelope"))
                 {
-                    ResponseEnvelopeXml.NavigateToString("<?xml version=\"1.0\"?>" + bodyNode.FirstOrDefault().ToString());
+                    XNamespace nsEnvelope = namespaceMapping["Envelope"];
+                    var headerNode = xml.Descendants(nsEnvelope + "Header");
+                    if (headerNode.Count() > 0)
+                    {
+                        ResponseHeaderXml.NavigateToString("<?xml version=\"1.0\"?>" + headerNode.FirstOrDefault().ToString());
+                    }
+
+                    var bodyNode = xml.Descendants(nsEnvelope + "Body");
+                    if (bodyNode.Count() > 0)
+                    {
+                        ResponseEnvelopeXml.NavigateToString("<?xml version=\"1.0\"?>" + bodyNode.FirstOrDefault().ToString());
+                    }
                 }
 
                 ResponseRawXml.Text = inputData;
@@ -421,7 +451,7 @@ namespace WcfLiveTraceViewer
             catch (Exception ex)
             {
                 if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                    msgTxtBlock.Text = "Error while selecting trace item: " + ex.Message;
+                    DisplayMessage("Error while selecting trace item: " + ex.Message,true);
             }
         }
 
@@ -459,7 +489,7 @@ namespace WcfLiveTraceViewer
                 } 
                 else
                 {
-                    msgTxtBlock.Text = "Please select an item to delete";
+                    DisplayMessage("Please select an item to delete",true);
                 }
             }
             else
@@ -489,7 +519,7 @@ namespace WcfLiveTraceViewer
                 }
                 else
                 {
-                    msgTxtBlock.Text = "Please select an item to delete";
+                   DisplayMessage("Please select an item to delete",true);
                 }
 
             }
@@ -546,7 +576,7 @@ namespace WcfLiveTraceViewer
                     catch (Exception ex)
                     {
                         if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                            msgTxtBlock.Text = "Error while saving the messages: " + ex.Message;
+                            DisplayMessage("Error while saving the messages: " + ex.Message,true);
                     }
 
                 }
@@ -569,7 +599,7 @@ namespace WcfLiveTraceViewer
                     catch (Exception ex)
                     {
                         if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                            msgTxtBlock.Text = "Error while saving the trace data: " + ex.Message;
+                            DisplayMessage("Error while saving the trace data: " + ex.Message,true);
                     }
                 }
             }
@@ -619,7 +649,7 @@ namespace WcfLiveTraceViewer
                 catch(Exception ex)
                 {
                     if (Utilities.GetAppsettingsValue("displayErrors") == "True")
-                        msgTxtBlock.Text = "Error while opening the file: " + ex.Message;
+                        DisplayMessage("Error while opening the file: " + ex.Message,true);
                     return;
                 }
             }
@@ -740,6 +770,20 @@ namespace WcfLiveTraceViewer
             ResponseHeaderXml.NavigateToString(" ");
             ResponseEnvelopeXml.NavigateToString(" ");
             ResponseRawXml.Text = "";
+        }
+
+        private void DisplayMessage(string msg, bool isError)
+        {
+            if (isError)
+            {
+                msgTxtBlock.Foreground = Brushes.Red;
+            }
+            else
+            {
+                msgTxtBlock.Foreground = Brushes.Black;
+            }
+
+            msgTxtBlock.Text = msg;
         }
     }
 }
