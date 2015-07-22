@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>WcfLiveTraceViewer</id>
-    <version>1.0.0.0</version>
+    <version>1.0.0.1</version>
     <title>WCF Live Trace Viewer</title>
     <authors>Suganya Sinha</authors>
     <owners>Suganya Sinha</owners>
@@ -11,7 +11,14 @@
     <licenseUrl>https://github.com/SuganyaSinha/WCF-Live-Trace-Viewer/blob/master/LICENSE.md</licenseUrl>
     <projectUrl>https://github.com/SuganyaSinha/WCF-Live-Trace-Viewer/blob/master/README.md</projectUrl>
 
-    <releaseNotes>This is the initial version of WCF Live Trace Viewer tool</releaseNotes>
+    <releaseNotes>
+      Fixed the following bugs:
+      -Message and trace view tab does not have resizing capability
+      -Message view does not display data for the "To" field
+      -Error messages and normal application messages are displayed in red colour. UI should display them in different style
+      -When a message item is selected, the body tab on the right hand side does not display any data
+
+      https://github.com/SuganyaSinha/WCF-Live-Trace-Viewer/blob/master/ReleaseNotes.md</releaseNotes>
     <tags>wcf live trace</tags>
   </metadata>
   <files>
