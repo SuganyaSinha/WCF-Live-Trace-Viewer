@@ -16,7 +16,6 @@ namespace WcfLiveTraceViewer
         private TimeSpan requestTime;
         private TimeSpan responseTime;
         private string action;
-        private string sentTo;
         private string processName;
         private long duration = 3;
         private bool isHightlighted = false;
@@ -28,14 +27,13 @@ namespace WcfLiveTraceViewer
         {
 
         }
-        public Item(string requestXml, int id, string activityId, TimeSpan requestTime, string action, string sentTo, string processName,string source,bool hasError)
+        public Item(string requestXml, int id, string activityId, TimeSpan requestTime, string action, string processName,string source,bool hasError)
         {
             RequestXml = requestXml;
             Id = id;
             ActivityId = activityId;
             Action = action;
             RequestTime = requestTime;
-            SentTo = sentTo;
             ProcessName = processName;
             Source = source;
             HasError = hasError;
@@ -121,12 +119,6 @@ namespace WcfLiveTraceViewer
         {
             get { return action; }
             set { action = value; }
-        }
-
-        public string SentTo
-        {
-            get { return sentTo; }
-            set { sentTo = value; }
         }
 
         public string ProcessName
